@@ -1,0 +1,51 @@
+{
+	"name": "backbone-nesty",
+	"version": "0.1.0",
+	"description": "Support nested data types like collections, arrays, and models within your models",
+	"homepage": "https://github.com/bevry/backbone-nesty",
+	"keywords": [
+		"flow",
+		"control",
+		"async",
+		"sync",
+		"tasks",
+		"batch"
+	],
+	"author": "Bevry Pty Ltd <us@bevry.me> (http://bevry.me)",
+	"maintainers": [
+		"Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)"
+	],
+	"contributors": [
+		"Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)"
+	],
+	"bugs": {
+		"url": "https://github.com/bevry/backbone-nesty/issues"
+	},
+	"repository" : {
+		"type": "git",
+		"url": "http://github.com/bevry/backbone-nesty.git"
+	},
+	"engines" : {
+		"node": ">=0.4"
+	},
+	"dependencies": {
+		"typechecker": "~2.0.1",
+		"getsetdeep": "~2.0.0"
+	},
+	"peerDependencies": {
+		"query-engine": "~1.5.2",
+		"backbone": "~1.0.0"
+	},
+	"devDependencies": {
+		"coffee-script": "~1.6.2",
+		"joe": "~1.2.0",
+		"joe-reporter-console": "~1.2.1"
+	},
+	"directories": {
+		"lib": "./out/lib"
+	},
+	"scripts": {
+		"test": "node ./out/test/backbone-nesty-test.js --joe-reporter=list"
+	},
+	"main": "./out/lib/backbone-nesty.js"
+}
