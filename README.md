@@ -2,6 +2,7 @@
 
 [![Build Status](https://secure.travis-ci.org/bevry/backbone-nesty.png?branch=master)](http://travis-ci.org/bevry/backbone-nesty)
 [![NPM version](https://badge.fury.io/js/backbone-nesty.png)](https://npmjs.org/package/backbone-nesty)
+[![Flattr this project](http://api.flattr.com/button/flattr-badge-large.png)](http://flattr.com/thing/344188/balupton-on-Flattr)
 
 Support nested data types like collections, arrays, and models within your [Backbone.js](http://backbonejs.org/) [Models](http://backbonejs.org/#Model)
 
