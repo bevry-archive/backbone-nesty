@@ -69,15 +69,27 @@ joe.describe 'backbone-nesty', (describe,it) ->
 	it 'should instantiate nested data correctly', ->
 		expect(myHead.toJSON()).to.eql(myHeadFixture)
 
-	it 'should perform nested getters correctly', ->
-		value = myHead.get("eyes.left.open")
-		console.log myHead.get('eyes').get('left').get('open')
-		expect(value).to.eql(true)
+	describe 'nested models', (describe,it) ->
+		it 'should perform getters on nested models correctly', ->
+			value = myHead.get("mouth.open")
+			console.log myHead.get('mouth').get('open')
+			expect(value).to.eql(true)
 
-	it 'should perform nested setters correctly', ->
-		myHead.set("eyes.left.open", false)
-		value = myHead.get("eyes.left.open")
-		expect(value).to.eql(false)
+		it 'should perform setters on nested models correctly', ->
+			myHead.set("mouth.open", false)
+			value = myHead.get("mouth.open")
+			expect(value).to.eql(false)
+
+	describe 'nested collections', (describe,it) ->
+		it 'should perform getters on nested collections correctly', ->
+			value = myHead.get("eyes.left.open")
+			console.log myHead.get('eyes').get('left').get('open')
+			expect(value).to.eql(true)
+
+		it 'should perform setters on nested collections correctly', ->
+			myHead.set("eyes.left.open", false)
+			value = myHead.get("eyes.left.open")
+			expect(value).to.eql(false)
 
 	it 'should indicate the changes in the serialization', ->
 		# todo

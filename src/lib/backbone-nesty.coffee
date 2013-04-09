@@ -16,8 +16,8 @@ class BackboneNestyModel extends Model
 		@models ?= {}
 		@embeds ?= {}
 
-		# Ensure attributes exist in defualts
-		things = ['embeds', 'models','collections']
+		# Ensure attributes exist in defaults
+		things = ['embeds', 'models', 'collections']
 		for thing in things
 			for own key,value of @[thing]
 				getSetDeep.setDeep(@defaults,key,null,true)
