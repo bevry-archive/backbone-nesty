@@ -1,11 +1,9 @@
 // Import
-var backbone = require('backbone');
+var Backbone = require('backbone');
 var BackboneNestyModel = require('./').BackboneNestyModel;
-var models = {};
-var collections = {};
 
 // Eye Model
-models.Eye = backbone.Model.extend({
+var EyeModel = Backbone.Model.extend({
 	attributes: {
 		color: null,
 		open: false
@@ -13,32 +11,32 @@ models.Eye = backbone.Model.extend({
 });
 
 // Eye Collection
-collections.Eye = backbone.Collection.extend({
-	model: models.Eye
+var EyeCollection = Backbone.Collection.extend({
+	model: EyeModel
 });
 
 // Mouth Model
-models.Mouth = backbone.Model.extend({
+var MouthModel = Backbone.Model.extend({
 	attributes: {
 		open: false
 	}
 });
 
 // Head Model
-models.Head = BackboneNestyModel.extend({
+var HeadModel = BackboneNestyModel.extend({
 	// Define our nested collections
 	collections: {
-		eyes: collections.Eye
+		eyes: EyeCollection
 	},
 
 	// Define our nested models
 	models: {
-		mouth: models.Mouth
+		mouth: MouthModel
 	}
 });
 
 // Instantiate our head with our nested data
-var myHead = new models.Head({
+var myHead = new HeadModel({
 	// will create a mouth model with this data
 	mouth: {
 		open: true
