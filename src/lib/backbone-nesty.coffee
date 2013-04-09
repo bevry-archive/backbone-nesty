@@ -6,61 +6,60 @@ getSetDeep = require('getsetdeep')
 # Extend our Backbone.Model with our own custom stuff
 class BackboneNestyModel extends Model
 	# Prepare
+	collections: null
+	models: null
+	embeds: null
 	strict: true
+	className: 'BackboneNestyModel'
 
 	# Constructor
 	constructor: ->
 		# Destroy References
-		@defaults = JSON.parse JSON.stringify (@defaults or {})
 		@collections ?= {}
 		@models ?= {}
 		@embeds ?= {}
 
-		# Ensure attributes exist in defaults
-		things = ['embeds', 'models', 'collections']
-		for thing in things
-			for own key,value of @[thing]
-				getSetDeep.setDeep(@defaults,key,null,true)
-
 		# Super
 		super
+
+	# Check if the key is an id attribute
+	isIdAttribute: (key) ->
+		return key in ['id', 'cid']
+
+	# Check if the key is a nested attribute
+	isNestedAttribute: (key) ->
+		types = ['models', 'collections']
+		for type in types
+			typeCollection = @[type]
+			return type  if key of typeCollection
+		return false
 
 	# Ensure Value
 	prepareValue: (key,value) ->
 		# Prepare
-		klass = null
-		type = null
+		type = @isNestedAttribute(key)
+		return value  unless type
+		klass = @[type][key]
+		return value  if value instanceof klass
 
-		# Model
-		if key of @models
-			klass = @models[key]
-			type = 'model'
+		# Prepare the collection
+		if type is 'collections'
+			if typeChecker.isArray(value) is false
+				# Convert id indexed object into an array
+				items = []
+				for own id,item of value
+					item.id ?= id
+					items.push(item)
+				value = items
 
-		# Collection
-		else if key of @collections
-			klass = @collections[key]
-			type = 'collection'
-
-		# Handle
-		if type? and !(value instanceof klass)
-			# Collection
-			if type is 'collection'
-				if typeChecker.isArray(value) is false
-					# Convert id indexed object into an array
-					items = []
-					for own id,item of value
-						item.id ?= id
-						items.push(item)
-					value = items
-
-			# Instantiate value with our desired class
-			value =
-				if klass is Array
-					value or []
-				else if value?
-					new klass(value)
-				else
-					new klass()
+		# Instantiate the value with our desired class
+		value =
+			if klass is Array
+				value or []
+			else if value?
+				new klass(value)
+			else
+				new klass()
 
 		# Return the prepare value
 		return value
@@ -69,19 +68,19 @@ class BackboneNestyModel extends Model
 	toJSON: ->
 		# Prepare
 		model = @
-		things = ['models','collections']
+		types = ['models','collections']
 		json = super
 
 		# Instantiate
-		for thing in things
-			thingy = @[thing]
-			for own key,klass of thingy
-				value = getSetDeep.getDeep(json,key)
+		for type in types
+			typeCollection = @[type]
+			for own key,klass of typeCollection
+				value = getSetDeep.getDeep(json, key)
 				embed = @embeds?[key] ? null
 
 				# Shallow Embed
 				if embed is 'shallow'
-					if thing is 'collections'
+					if type is 'collections'
 						value = value?.pluck?('id') ? value[key]
 						getSetDeep.setDeep(json, key, value)
 					else
@@ -102,41 +101,44 @@ class BackboneNestyModel extends Model
 
 	# Get
 	get: (key) ->
-		return @prepareValue key, getSetDeep.getDeep(@attributes,key)
+		value = getSetDeep.getDeep(@attributes, key)
+		value = @prepareValue(key, value)
+		return value
 
 	# Set
 	# If our model is strict, then only set attributes that actually exist in our model structure
-	set: (args...) ->
-		# Prepare
-		model = @
-
-		# Check
-		if args.length is 2 and typeChecker.isString(args[0])
-			[key,value] = args
+	set: (attrs,opts) ->
+		# Handle alternative argument cases
+		if arguments.length is 3 or typeChecker.isString(arguments[0])
+			[key,value,opts] = arguments
 			attrs = {}
 			attrs[key] = value
-			return @set(attrs)
+			return @set(attrs,opts)
 
 		# Apply
-		[attrs,opts] = args
 		for own key,value of attrs
-			# Strict Attributes
-			if @strict and (typeof getSetDeep.getDeep(@defaults,key) is 'undefined' and (key in ['id','cid']) is false)
-				console.log("Set of #{key} ignored on strict model #{model.className}")
-				continue
+			# ID Attribute
+			if @isIdAttribute(key)
+				@[key] = value
 
-			# Deep Attributes
-			value = model.prepareValue(key, value)
-			getSetDeep.setDeep(model.attributes, key, value)
-			event = "change:#{key}"
-			@trigger(event, @, value)
+			# Nested Attribute
+			else if @isNestedAttribute(key.split('.')[0])  # not nice
+				value = @prepareValue(key, value)
+				getSetDeep.setDeep(@attributes, key, value, opts)
 
-			# Special
-			@id  = value  if key is 'id'
-			@cid = value  if key is 'cid'
+			# Normal/Deep Attribute
+			else
+				# Strict and doens't exist
+				if @strict and typeof getSetDeep.getDeep(@defaults,key) is 'undefined'
+					console.log("Set of #{key} ignored on strict model #{@className}")
+					continue
+
+				# Ohterwise proceed with set
+				getSetDeep.setDeep(@attributes, key, value, opts)
 
 			# Done
-			continue
+			event = "change:#{key}"
+			@trigger(event, @, value)
 
 		# Native
 		return @

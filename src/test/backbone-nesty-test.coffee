@@ -9,49 +9,45 @@ Backbone = require("backbone")
 # Fixtures
 
 # Eye Model
-EyeModel = Backbone.Model.extend(attributes:
-	color: null
-	open: false
+EyeModel = Backbone.Model.extend(
+	defaults:
+		color: null
+		open: false
 )
 
 # Eye Collection
-EyeCollection = Backbone.Collection.extend(model: EyeModel)
+EyeCollection = Backbone.Collection.extend(
+	model: EyeModel
+)
 
 # Mouth Model
-MouthModel = Backbone.Model.extend(attributes:
-	open: false
+MouthModel = Backbone.Model.extend(
+	defaults:
+		open: false
 )
 
 # Head Model
 HeadModel = BackboneNestyModel.extend(
-
-	# Define our nested collections
 	collections:
 		eyes: EyeCollection
 
-
-	# Define our nested models
 	models:
 		mouth: MouthModel
 )
 
 # Define our fixture data
 myHeadFixture =
-
 	# will create a mouth model with this data
 	mouth:
 		open: true
 
-
 	# will create an eyes collection with this data
 	eyes: [
-
 		# will create an eye model with this data
 		id: "left"
 		color: "green"
 		open: true
 	,
-
 		# will create an eye model with this data
 		id: "right"
 		color: "green"
@@ -66,13 +62,35 @@ myHead = new HeadModel(myHeadFixture)
 # Tests
 
 joe.describe 'backbone-nesty', (describe,it) ->
+	it 'should detect id attribute correctly', ->
+		expect(
+			myHead.isIdAttribute('id')
+		).to.eql(true)
+		expect(
+			myHead.isIdAttribute('cid')
+		).to.eql(true)
+
+	it 'should detect nested attribute correctly', ->
+		expect(
+			myHead.isNestedAttribute('id')
+		).to.eql(false)
+		expect(
+			myHead.isNestedAttribute('mouth')
+		).to.eql('models')
+		expect(
+			myHead.isNestedAttribute('eyes')
+		).to.eql('collections')
+
+
 	it 'should instantiate nested data correctly', ->
-		expect(myHead.toJSON()).to.eql(myHeadFixture)
+		expect(
+			myHead.toJSON()
+		).to.eql(myHeadFixture)
+
 
 	describe 'nested models', (describe,it) ->
 		it 'should perform getters on nested models correctly', ->
 			value = myHead.get("mouth.open")
-			console.log myHead.get('mouth').get('open')
 			expect(value).to.eql(true)
 
 		it 'should perform setters on nested models correctly', ->
@@ -83,7 +101,6 @@ joe.describe 'backbone-nesty', (describe,it) ->
 	describe 'nested collections', (describe,it) ->
 		it 'should perform getters on nested collections correctly', ->
 			value = myHead.get("eyes.left.open")
-			console.log myHead.get('eyes').get('left').get('open')
 			expect(value).to.eql(true)
 
 		it 'should perform setters on nested collections correctly', ->
