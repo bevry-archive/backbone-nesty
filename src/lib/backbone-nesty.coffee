@@ -74,7 +74,7 @@ class BackboneNestyModel extends Model
 		for type in types
 			typeCollection = @[type]
 			for own key,klass of typeCollection
-				value = getSetDeep.getDeep(json, key)
+				value = @get(key)
 				embed = @embeds?[key] ? null
 
 				# Shallow Embed
@@ -101,8 +101,12 @@ class BackboneNestyModel extends Model
 	# Get
 	get: (key) ->
 		value = getSetDeep.getDeep(@attributes, key)
-		value = @prepareValue(key, value)
-		return value
+		preparedValue = @prepareValue(key, value)
+		if value isnt preparedValue
+			attrs = {}
+			attrs[key] = preparedValue
+			@set(attrs)
+		return preparedValue
 
 	# Set
 	# If our model is strict, then only set attributes that actually exist in our model structure
