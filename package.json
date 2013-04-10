@@ -1,10 +1,11 @@
 {
 	"name": "backbone-nesty",
-	"version": "0.1.0",
-	"description": "Support nested data types like collections, arrays, and models within your models",
+	"version": "1.0.0",
+	"description": "Support nested data types like collections and models within your Backbone.js models",
 	"homepage": "https://github.com/bevry/backbone-nesty",
 	"keywords": [
-		"backbone","backbone.js","model","models","nested model","collection","collections","nested collections","nested"
+		"backbone","backbone.js","model","models","nested model","collection","collections","nested collections","nested",
+		"deep", "getsetdeep", "getdeep", "setdeep", "nested attributes"
 	],
 	"author": "Bevry Pty Ltd <us@bevry.me> (http://bevry.me)",
 	"maintainers": [
@@ -25,7 +26,7 @@
 	},
 	"dependencies": {
 		"typechecker": "~2.0.1",
-		"getsetdeep": "~2.0.0"
+		"getsetdeep": "~2.1.0"
 	},
 	"peerDependencies": {
 		"backbone": "~1.0.0"

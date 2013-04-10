@@ -37,6 +37,9 @@ HeadModel = BackboneNestyModel.extend(
 
 # Define our fixture data
 myHeadFixture =
+	# This attribute doesn't exist, as by default we are strict models, it should be ignored
+	notSafeAttribute: true
+
 	# will create a mouth model with this data
 	mouth:
 		open: true
@@ -54,39 +57,59 @@ myHeadFixture =
 		open: true
 	]
 
-# Instantiate our head with our nested data
-myHead = new HeadModel(myHeadFixture)
-
 
 # =====================================
 # Tests
 
 joe.describe 'backbone-nesty', (describe,it) ->
-	it 'should detect id attribute correctly', ->
-		expect(
-			myHead.isIdAttribute('id')
-		).to.eql(true)
-		expect(
-			myHead.isIdAttribute('cid')
-		).to.eql(true)
+	# Prepare
+	myHead = null
 
-	it 'should detect nested attribute correctly', ->
-		expect(
-			myHead.isNestedAttribute('id')
-		).to.eql(false)
-		expect(
-			myHead.isNestedAttribute('mouth')
-		).to.eql('models')
-		expect(
-			myHead.isNestedAttribute('eyes')
-		).to.eql('collections')
+	it 'should set correctly', ->
+		checks = 0
+		myHead = new HeadModel().on 'warn', (err) ->
+			++checks
+			expect(err.message).to.equal("Set of notSafeAttribute ignored on strict model")
+		myHead.set(myHeadFixture)
+		expect(checks).to.eql(1)
 
+	it 'should instantiate correctly', ->
+		myHead = new HeadModel(myHeadFixture)
 
-	it 'should instantiate nested data correctly', ->
-		expect(
-			myHead.toJSON()
-		).to.eql(myHeadFixture)
+	describe 'meta functions', (describe,it) ->
+		it 'should detect id attribute correctly', ->
+			expect(
+				myHead.isIdAttribute('id')
+			).to.eql(true)
+			expect(
+				myHead.isIdAttribute('cid')
+			).to.eql(true)
 
+		it 'should detect nested attribute correctly', ->
+			expect(
+				myHead.isNestedAttribute('id')
+			).to.eql(false)
+			expect(
+				myHead.isNestedAttribute('mouth')
+			).to.eql('models')
+			expect(
+				myHead.isNestedAttribute('eyes')
+			).to.eql('collections')
+
+	it 'should have instantiated nested data correctly', ->
+		actual = myHead.toJSON()
+		expect(actual).to.deep.equal(
+			mouth: open: true
+			eyes: [
+				id: "left"
+				color: "green"
+				open: true
+			,
+				id: "right"
+				color: "green"
+				open: true
+			]
+		)
 
 	describe 'nested models', (describe,it) ->
 		it 'should perform getters on nested models correctly', ->
@@ -109,4 +132,16 @@ joe.describe 'backbone-nesty', (describe,it) ->
 			expect(value).to.eql(false)
 
 	it 'should indicate the changes in the serialization', ->
-		# todo
+		actual = myHead.toJSON()
+		expect(actual).to.deep.equal(
+			mouth: open: false
+			eyes: [
+				id: "left"
+				color: "green"
+				open: false
+			,
+				id: "right"
+				color: "green"
+				open: true
+			]
+		)

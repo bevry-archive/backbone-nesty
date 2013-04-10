@@ -4,7 +4,7 @@
 [![NPM version](https://badge.fury.io/js/backbone-nesty.png)](https://npmjs.org/package/backbone-nesty)
 [![Flattr this project](http://api.flattr.com/button/flattr-badge-large.png)](http://flattr.com/thing/344188/balupton-on-Flattr)
 
-Support nested data types like collections, arrays, and models within your [Backbone.js](http://backbonejs.org/) [Models](http://backbonejs.org/#Model)
+Support nested data types like collections and models within your [Backbone.js](http://backbonejs.org/) [models](http://backbonejs.org/#Model)
 
 
 
@@ -27,83 +27,93 @@ Support nested data types like collections, arrays, and models within your [Back
 
 ``` javascript
 // Import
-var backbone = require('backbone');
+var Backbone = require('backbone');
 var BackboneNestyModel = require('backbone-nesty').BackboneNestyModel;
-var models = {};
-var collections = {};
 
 // Eye Model
-models.Eye = backbone.Model.extend({
+var EyeModel = Backbone.Model.extend({
 	attributes: {
 		color: null,
-		location: null,  // left or right
 		open: false
 	}
 });
 
 // Eye Collection
-collections.Eye = backbone.Collection.extend({
-	model: models.Eye
+var EyeCollection = Backbone.Collection.extend({
+	model: EyeModel
 });
 
 // Mouth Model
-var Mouth = Backbone.Model.extend({
+var MouthModel = Backbone.Model.extend({
 	attributes: {
 		open: false
 	}
 });
 
 // Head Model
-models.Head = BackboneNestyModel.extend({
+var HeadModel = BackboneNestyModel.extend({
 	// Define our nested collections
 	collections: {
-		eyes: collections.Eye
+		eyes: EyeCollection
 	},
 
 	// Define our nested models
 	models: {
-		mouth: models.Mouth
+		mouth: MouthModel
 	}
 });
 
 // Instantiate our head with our nested data
-var myHead = new MyModel({
-
+var myHead = new HeadModel({
 	// will create a mouth model with this data
 	mouth: {
 		open: true
 	},
-	
 	// will create an eyes collection with this data
 	eyes: [
-		
 		// will create an eye model with this data
 		{
+			id: 'left',
 			color: 'green',
-			location: 'left',
 			open: true
 		},
-		
 		// will create an eye model with this data
 		{
+			id: 'right',
 			color: 'green',
-			location: 'right',
 			open: true
 		}
 	]
 });
 
-// Nested Getter
-console.log(myHead.get('eyes.0.open')); // true
-// ^ equiv to myHeader.get('eyes').at(0).get('open')
+// Check
+console.log(myHead.toJSON());
+console.log(myHead.get('eyes.left.open')); // true
+// ^ equiv to myHeader.get('eyes').get('left').get('open')
 
 // Nested Setter
-myHead.set('eyes.0.open', false);
-// ^ equiv to myHeader.get('eyes').at(0).set('open', false)
+myHead.set('eyes.left.open', false);
+// ^ equiv to myHeader.get('eyes').get('right').set('open', false)
 
 // Check
-console.log(myHead.get('eyes.0.open')); // false
+console.log(myHead.toJSON());
+console.log(myHead.get('eyes.left.open')); // false
 ```
+
+### BackboneNestyModel API
+
+`require('backbone-nesty').BackboneNestyModel` is an extended [Backbone.js](http://backbonejs.org/) [Model](http://backbonejs.org/#Model) that adds the following functionality:
+
+- properties
+	- `collections` defaults to `{}`, an object which keys are the attributes and values are the collection data type for the attribute
+	- `models` defaults to `{}`, an object which keys are the attributes and values are the model data type for the attribute
+	- `embed` defaults to `{}`, an object which keys are the attributes and values are boolean on whether or not we should embed the full data of this attribute when calling `toJSON` on the model or just an id listing
+	- `strict` defaults to `true`, a boolean for whether or not we should allow unknown attributes to be set on our model
+- methods
+	- `toJSON()` will serialize the model and all nested data types as well, if the embed property for an nested data type is false, that value will be replaced with an id listing instead
+	- `get(key)` adds support for nested gets
+	- `set(attrs,opts)` adds support for nested sets and will instantiate the value according to the nested data type if applicable
+
 
 ## History
 You can discover the history inside the [History.md](https://github.com/bevry/backbone-nesty/blob/master/History.md#files) file

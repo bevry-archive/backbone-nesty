@@ -10,7 +10,6 @@ class BackboneNestyModel extends Model
 	models: null
 	embeds: null
 	strict: true
-	className: 'BackboneNestyModel'
 
 	# Constructor
 	constructor: ->
@@ -130,7 +129,8 @@ class BackboneNestyModel extends Model
 			else
 				# Strict and doens't exist
 				if @strict and typeof getSetDeep.getDeep(@defaults,key) is 'undefined'
-					console.log("Set of #{key} ignored on strict model #{@className}")
+					err = new Error("Set of #{key} ignored on strict model")
+					@trigger('warn', err)
 					continue
 
 				# Ohterwise proceed with set
