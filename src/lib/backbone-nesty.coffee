@@ -99,13 +99,21 @@ class BackboneNestyModel extends Model
 		return json
 
 	# Get
-	get: (key) ->
+	get: (key,opts) ->
+		# Prepare
 		value = getSetDeep.getDeep(@attributes, key)
 		preparedValue = @prepareValue(key, value)
+
+		# Changed?
 		if value isnt preparedValue
-			attrs = {}
-			attrs[key] = preparedValue
-			@set(attrs)
+			# Apply
+			getSetDeep.setDeep(@attributes, key, preparedValue, opts)
+
+			# Done
+			event = "change:#{key}"
+			@trigger(event, @, value)
+
+		# Return
 		return preparedValue
 
 	# Set
@@ -125,9 +133,15 @@ class BackboneNestyModel extends Model
 				@[key] = value
 
 			# Nested Attribute
-			else if @isNestedAttribute(key.split('.')[0])  # not nice
-				value = @prepareValue(key, value)
-				getSetDeep.setDeep(@attributes, key, value, opts)
+			else if @isNestedAttribute(key.split('.')[0])
+				nestedValue = @get(key, opts)
+				if nestedValue.set?
+					# support nested collections and models
+					nestedValue.set(value, opts)
+				else
+					# support nested arrays, objects etc
+					value = @prepareValue(key, value)
+					getSetDeep.setDeep(@attributes, key, value, opts)
 
 			# Normal/Deep Attribute
 			else
