@@ -45,13 +45,16 @@ DeepModel = BackboneNestyModel.extend(
 		a:
 			b:
 				c: true
+				d: true
 )
 
 # Define our fixture data
 myHeadFixture =
+	id: 1
+	safeAttribute: true
+
 	# This attribute doesn't exist, as by default we are strict models, it should be ignored
 	notSafeAttribute: true
-	safeAttribute: true
 
 	# will create a mouth model with this data
 	mouth:
@@ -114,6 +117,7 @@ joe.describe 'backbone-nesty', (describe,it) ->
 	it 'should have instantiated nested data', ->
 		actual = myHead.toJSON()
 		expect(actual).to.deep.equal(
+			id: 1
 			safeAttribute: true
 			mouth: open: true
 			eyes: [
@@ -151,6 +155,7 @@ joe.describe 'backbone-nesty', (describe,it) ->
 	it 'should indicate the changes in the serialization', ->
 		actual = myHead.toJSON()
 		expect(actual).to.deep.equal(
+			id: 1
 			safeAttribute: true
 			mouth: open: false
 			eyes: [
@@ -184,10 +189,22 @@ joe.describe 'backbone-nesty', (describe,it) ->
 			process.nextTick ->
 				expect(checks).to.eql(2)
 
-	describe 'default references', (describe,it) ->
-		it 'should dereference correctly', ->
+	describe 'references', (describe,it) ->
+		it 'should dereference defaults correctly', ->
 			a = new DeepModel()
 			a.set('a.b.c', false)
 			expect(a.get('a.b.c')).to.eql(false)
+
 			b = new DeepModel()
 			expect(b.get('a.b.c')).to.eql(true)
+
+		it 'should dereference attributes correctly', ->
+			a = new DeepModel()
+			a.set('a', b:c:true)
+
+			data = a.toJSON()
+			expect(data.a.b.c).to.eql(true)
+
+			data.a.b.c = false
+			expect(data.a.b.c).to.eql(false)
+			expect(a.get('a.b.c')).to.eql(true)

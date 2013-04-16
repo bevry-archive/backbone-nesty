@@ -3,6 +3,10 @@ typeChecker = require('typechecker')
 getSetDeep = require('getsetdeep')
 {Model} = require('backbone')
 
+# Derference helper
+dereference = (obj) ->
+	return JSON.parse(JSON.stringify(obj or {}))
+
 # Extend our Backbone.Model with our own custom stuff
 class BackboneNestyModel extends Model
 	# Prepare
@@ -13,12 +17,15 @@ class BackboneNestyModel extends Model
 	dereference: true
 
 	# Constructor
-	constructor: ->
+	constructor: (attrs,opts={}) ->
+		# Options
+		@strict = opts.strict  if opts.strict
+
 		# Destroy References
 		@collections ?= {}
 		@models ?= {}
 		@embeds ?= {}
-		@defaults = JSON.parse(JSON.stringify(@defaults or {}))  if @dereference
+		@defaults = dereference(@defaults or {})
 
 		# Super
 		super
@@ -70,7 +77,8 @@ class BackboneNestyModel extends Model
 		# Prepare
 		model = @
 		types = ['models','collections']
-		json = super
+		json = dereference(super)
+		json.id = @id
 
 		# Instantiate
 		for type in types

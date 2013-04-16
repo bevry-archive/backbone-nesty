@@ -1,5 +1,10 @@
 ## History
 
+v1.3.0 April 17, 2013
+	- Can now set `strict` property by passing it as an option to the constructor
+	- We now dereference the `defaults` as well as the `toJSON` output
+	- `toJSON` output will now also have the model's id
+
 v1.2.0 April 17, 2013
 	- We now dereference the `defaults` property
 	- Methods are now bound to the instance
