@@ -10,6 +10,7 @@ class BackboneNestyModel extends Model
 	models: null
 	embeds: null
 	strict: true
+	dereference: true
 
 	# Constructor
 	constructor: ->
@@ -17,16 +18,17 @@ class BackboneNestyModel extends Model
 		@collections ?= {}
 		@models ?= {}
 		@embeds ?= {}
+		@defaults = JSON.parse(JSON.stringify(@defaults or {}))  if @dereference
 
 		# Super
 		super
 
 	# Check if the key is an id attribute
-	isIdAttribute: (key) ->
+	isIdAttribute: (key) =>
 		return key in ['id', 'cid']
 
 	# Check if the key is a nested attribute
-	isNestedAttribute: (key) ->
+	isNestedAttribute: (key) =>
 		types = ['models', 'collections']
 		for type in types
 			typeCollection = @[type]
@@ -34,7 +36,7 @@ class BackboneNestyModel extends Model
 		return false
 
 	# Ensure Value
-	prepareValue: (key,value) ->
+	prepareValue: (key,value) =>
 		# Prepare
 		type = @isNestedAttribute(key)
 		return value  unless type
@@ -64,7 +66,7 @@ class BackboneNestyModel extends Model
 		return value
 
 	# To JSON
-	toJSON: ->
+	toJSON: =>
 		# Prepare
 		model = @
 		types = ['models','collections']
@@ -99,7 +101,7 @@ class BackboneNestyModel extends Model
 		return json
 
 	# Get
-	get: (key,opts) ->
+	get: (key,opts) =>
 		# Prepare
 		value = getSetDeep.getDeep(@attributes, key)
 		preparedValue = @prepareValue(key, value)
@@ -118,7 +120,7 @@ class BackboneNestyModel extends Model
 
 	# Set
 	# If our model is strict, then only set attributes that actually exist in our model structure
-	set: (attrs,opts) ->
+	set: (attrs,opts) =>
 		# Handle alternative argument cases
 		if arguments.length is 3 or typeChecker.isString(arguments[0])
 			[key,value,opts] = arguments

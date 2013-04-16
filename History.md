@@ -1,5 +1,9 @@
 ## History
 
+v1.2.0 April 17, 2013
+	- We now dereference the `defaults` property
+	- Methods are now bound to the instance
+
 v1.1.0 April 16, 2013
 	- If the nested object already exists, we won't over-write it but instead apply the new values to it
 

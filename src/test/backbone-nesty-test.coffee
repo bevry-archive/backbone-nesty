@@ -39,6 +39,14 @@ HeadModel = BackboneNestyModel.extend(
 		mouth: MouthModel
 )
 
+# Deep Model
+DeepModel = BackboneNestyModel.extend(
+	defaults:
+		a:
+			b:
+				c: true
+)
+
 # Define our fixture data
 myHeadFixture =
 	# This attribute doesn't exist, as by default we are strict models, it should be ignored
@@ -175,3 +183,11 @@ joe.describe 'backbone-nesty', (describe,it) ->
 
 			process.nextTick ->
 				expect(checks).to.eql(2)
+
+	describe 'default references', (describe,it) ->
+		it 'should dereference correctly', ->
+			a = new DeepModel()
+			a.set('a.b.c', false)
+			expect(a.get('a.b.c')).to.eql(false)
+			b = new DeepModel()
+			expect(b.get('a.b.c')).to.eql(true)

@@ -109,6 +109,7 @@ console.log(myHead.get('eyes.left.open')); // false
 	- `models` defaults to `{}`, an object which keys are the attributes and values are the model data type for the attribute
 	- `embed` defaults to `{}`, an object which keys are the attributes and values are boolean on whether or not we should embed the full data of this attribute when calling `toJSON` on the model or just an id listing
 	- `strict` defaults to `true`, a boolean for whether or not we should allow unknown attributes to be set on our model
+	- `dereference` defaults to `true`, a boolean for whether or not we should dereference the `defaults` property
 - methods
 	- `toJSON()` will serialize the model and all nested data types as well, if the embed property for an nested data type is false, that value will be replaced with an id listing instead
 	- `get(key)` adds support for nested gets
