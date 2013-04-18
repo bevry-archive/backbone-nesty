@@ -183,11 +183,9 @@ joe.describe 'backbone-nesty', (describe,it) ->
 				.add(thirdEye)
 
 			myHead.set("eyes",[])
-			myHead.get('eyes')
-				.add(thirdEye)
+			myHead.get('eyes').add(thirdEye)
 
-			process.nextTick ->
-				expect(checks).to.eql(2)
+			expect(checks).to.eql(2)
 
 	describe 'references', (describe,it) ->
 		it 'should dereference defaults correctly', ->
@@ -208,3 +206,46 @@ joe.describe 'backbone-nesty', (describe,it) ->
 			data.a.b.c = false
 			expect(data.a.b.c).to.eql(false)
 			expect(a.get('a.b.c')).to.eql(true)
+
+	describe 'replace', (describe,it) ->
+		it 'should replace model correctly', ->
+			checks = 0
+
+			a = new HeadModel(myHeadFixture)
+			a.get('mouth').on 'change:open', ->
+				++checks
+			a.set('mouth.open', false)
+
+			expect(checks).to.eql(1)
+			expect(a.get('mouth.open')).to.eql(false)
+
+			a.set('mouth', {open:true})
+
+			expect(checks).to.eql(2)
+			expect(a.get('mouth.open')).to.eql(true)
+
+			a.set('mouth', new MouthModel({open:false}))
+
+			expect(checks).to.eql(2)
+			expect(a.get('mouth.open')).to.eql(false)
+
+		it 'should replace model correctly when replaceModel is false', ->
+			checks = 0
+
+			a = new HeadModel(myHeadFixture)
+			a.get('mouth').on 'change:open', ->
+				++checks
+			a.set('mouth.open', false)
+
+			expect(checks).to.eql(1)
+			expect(a.get('mouth.open')).to.eql(false)
+
+			a.set('mouth', {open:true})
+
+			expect(checks).to.eql(2)
+			expect(a.get('mouth.open')).to.eql(true)
+
+			a.set({'mouth':new MouthModel({open:false})}, {replaceModel:false})
+
+			expect(checks).to.eql(3)
+			expect(a.get('mouth.open')).to.eql(false)

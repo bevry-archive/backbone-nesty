@@ -42,6 +42,14 @@ class BackboneNestyModel extends Model
 			return type  if key of typeCollection
 		return false
 
+	# Check if the value is a prepared value
+	isPreparedValue: (key,value) ->
+		# Prepare
+		type = @isNestedAttribute(key)
+		return null  unless type
+		klass = @[type][key]
+		return value instanceof klass
+
 	# Ensure Value
 	prepareValue: (key,value) =>
 		# Prepare
@@ -136,6 +144,10 @@ class BackboneNestyModel extends Model
 			attrs[key] = value
 			return @set(attrs,opts)
 
+		# Prepare
+		opts ?= {}
+		opts.replaceModel ?= true
+
 		# Apply
 		for own key,value of attrs
 			# ID Attribute
@@ -145,7 +157,15 @@ class BackboneNestyModel extends Model
 			# Nested Attribute
 			else if @isNestedAttribute(key.split('.')[0])
 				nestedValue = @get(key, opts)
-				if nestedValue.set?
+
+				# Do we not want to replace the model if it is a model?
+				isPreparedValue = @isPreparedValue(key,value)
+				if opts.replaceModel is false
+					value = value.toJSON()
+					isPreparedValue = false
+
+				# If we are a model, we want to replace the model with the new model, not write inside it
+				if isPreparedValue is false and nestedValue.set?
 					# support nested collections and models
 					nestedValue.set(value, opts)
 				else

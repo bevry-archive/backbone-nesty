@@ -1,5 +1,10 @@
 ## History
 
+v1.4.0 April 18, 2013
+	- By default when over-writing a model attribute with a new model, we will replace the old model with the new model, rather than copying in the attributes of the new model into the old model
+		- This can be turned off by using `replaceModel: false` inside your set options
+	- Added `isPreparedValue(key,value)` method
+
 v1.3.0 April 17, 2013
 	- Can now set `strict` property by passing it as an option to the constructor
 	- We now dereference the `defaults` as well as the `toJSON` output
