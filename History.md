@@ -1,5 +1,9 @@
 ## History
 
+v1.5.0 April 19, 2013
+	- Correctly handle setting ID indexed collections
+	- Added tests for `embeds` property
+
 v1.4.0 April 18, 2013
 	- By default when over-writing a model attribute with a new model, we will replace the old model with the new model, rather than copying in the attributes of the new model into the old model
 		- This can be turned off by using `replaceModel: false` inside your set options

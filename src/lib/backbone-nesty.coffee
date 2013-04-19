@@ -156,7 +156,7 @@ class BackboneNestyModel extends Model
 
 			# Nested Attribute
 			else if @isNestedAttribute(key.split('.')[0])
-				nestedValue = @get(key, opts)
+				nestedValue = getSetDeep.getDeep(@attributes, key)
 
 				# Do we not want to replace the model if it is a model?
 				isPreparedValue = @isPreparedValue(key,value)
@@ -165,7 +165,7 @@ class BackboneNestyModel extends Model
 					isPreparedValue = false
 
 				# If we are a model, we want to replace the model with the new model, not write inside it
-				if isPreparedValue is false and nestedValue.set?
+				if isPreparedValue is false and nestedValue?.set?
 					# support nested collections and models
 					nestedValue.set(value, opts)
 				else

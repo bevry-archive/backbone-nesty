@@ -170,6 +170,52 @@ joe.describe 'backbone-nesty', (describe,it) ->
 			toes: [1,2,3,4,5,6,7,8,9,10]
 		)
 
+	it 'should work with ID indexed collections', ->
+		fixture =
+			left:
+				color: "green"
+				open: false
+			right:
+				color: "green"
+				open: true
+		expected = [
+				id: "left"
+				color: "green"
+				open: false
+			,
+				id: "right"
+				color: "green"
+				open: true
+			]
+		actual = new HeadModel(eyes: fixture).toJSON()
+		expect(actual.eyes).to.deep.equal(expected)
+
+	describe 'embed', (describe,it) ->
+		fixture = [
+				id: "left"
+				color: "green"
+				open: false
+			,
+				id: "right"
+				color: "green"
+				open: true
+			]
+		actual = new HeadModel(eyes:fixture)
+
+		it 'should respect embed true', ->
+			expected = fixture
+			expect(actual.toJSON().eyes).to.deep.equal(expected)
+
+		it 'should respect embed shallow', ->
+			expected = ['left','right']
+			actual.embeds = eyes:'shallow'
+			expect(actual.toJSON().eyes).to.deep.equal(expected)
+
+		it 'should respect embed false', ->
+			expected = undefined
+			actual.embeds = eyes:false
+			expect(actual.toJSON().eyes).to.deep.equal(expected)
+
 	describe 'nested events', (describe,it) ->
 		it 'should still fire after re-set', ->
 			checks = 0
