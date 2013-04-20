@@ -190,6 +190,26 @@ joe.describe 'backbone-nesty', (describe,it) ->
 		actual = new HeadModel(eyes: fixture).toJSON()
 		expect(actual.eyes).to.deep.equal(expected)
 
+	it 'should work with ID indexed collections after pre-set', ->
+		fixture =
+			left:
+				color: "green"
+				open: false
+			right:
+				color: "green"
+				open: true
+		expected = [
+				id: "left"
+				color: "green"
+				open: false
+			,
+				id: "right"
+				color: "green"
+				open: true
+			]
+		actual = new HeadModel(eyes:[]).set(eyes:fixture).toJSON()
+		expect(actual.eyes).to.deep.equal(expected)
+
 	describe 'embed', (describe,it) ->
 		fixture = [
 				id: "left"

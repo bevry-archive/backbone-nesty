@@ -1,5 +1,8 @@
 ## History
 
+v1.6.0 April 19, 2013
+	- Setting a nested ID collections over a pre-set value will now apply properly
+
 v1.5.0 April 19, 2013
 	- Correctly handle setting ID indexed collections
 	- Added tests for `embeds` property
