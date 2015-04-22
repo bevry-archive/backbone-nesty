@@ -51,7 +51,7 @@ class BackboneNestyModel extends Model
 		return value instanceof klass
 
 	# Ensure Value
-	prepareValue: (key,value,options,opts={}) =>
+	prepareValue: (key,value,opts={}) =>
 		# Options
 		opts.idindexed ?= true
 		opts.instantiate ?= true
@@ -78,7 +78,7 @@ class BackboneNestyModel extends Model
 				if klass is Array
 					value or []
 				else if value?
-					new klass(value, options)
+					new klass(value, opts)
 				else
 					new klass()
 
@@ -172,7 +172,7 @@ class BackboneNestyModel extends Model
 				# If we are a model, we want to replace the model with the new model, not write inside it
 				if isPreparedValue is false and nestedValue?.set?
 					# support nested collections and models
-					value = @prepareValue(key, value, {parse:opts?.parse}, {instantiate:false})
+					value = @prepareValue(key, value, {parse:opts?.parse, instantiate:false})
 					nestedValue.set(value, opts)
 				else
 					# support nested arrays, objects etc
