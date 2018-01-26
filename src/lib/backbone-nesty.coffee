@@ -78,7 +78,7 @@ class BackboneNestyModel extends Model
 				if klass is Array
 					value or []
 				else if value?
-					new klass(value)
+					new klass(value, opts)
 				else
 					new klass()
 
@@ -125,7 +125,7 @@ class BackboneNestyModel extends Model
 	get: (key,opts) =>
 		# Prepare
 		value = getSetDeep.getDeep(@attributes, key)
-		preparedValue = @prepareValue(key, value)
+		preparedValue = @prepareValue(key, value, {parse:opts?.parse})
 
 		# Changed?
 		if value isnt preparedValue
@@ -172,11 +172,11 @@ class BackboneNestyModel extends Model
 				# If we are a model, we want to replace the model with the new model, not write inside it
 				if isPreparedValue is false and nestedValue?.set?
 					# support nested collections and models
-					value = @prepareValue(key, value, {instantiate:false})
+					value = @prepareValue(key, value, {parse:opts?.parse, instantiate:false})
 					nestedValue.set(value, opts)
 				else
 					# support nested arrays, objects etc
-					value = @prepareValue(key, value)
+					value = @prepareValue(key, value, {parse:opts?.parse})
 					getSetDeep.setDeep(@attributes, key, value, opts)
 
 			# Normal/Deep Attribute
