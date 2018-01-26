@@ -8,7 +8,7 @@ dereference = (obj) ->
 	return JSON.parse(JSON.stringify(obj or {}))
 
 # Extend our Backbone.Model with our own custom stuff
-class BackboneNestyModel extends Model
+BackboneNestyModel = Model.extend({
 	# Prepare
 	collections: null
 	models: null
@@ -19,7 +19,8 @@ class BackboneNestyModel extends Model
 	# Constructor
 	constructor: (attrs,opts={}) ->
 		# Options
-		@strict = opts.strict  if opts.strict
+		@strict = opts.strict  if opts.strictOptions?
+		@dereference = opts.dereference  if opts.dereference?
 
 		# Destroy References
 		@collections ?= {}
@@ -28,14 +29,14 @@ class BackboneNestyModel extends Model
 		@defaults = dereference(@defaults or {})
 
 		# Super
-		super
+		Model.apply(this, arguments)
 
 	# Check if the key is an id attribute
-	isIdAttribute: (key) =>
+	isIdAttribute: (key) ->
 		return key in ['id', 'cid']
 
 	# Check if the key is a nested attribute
-	isNestedAttribute: (key) =>
+	isNestedAttribute: (key) ->
 		types = ['models', 'collections']
 		for type in types
 			typeCollection = @[type]
@@ -51,7 +52,7 @@ class BackboneNestyModel extends Model
 		return value instanceof klass
 
 	# Ensure Value
-	prepareValue: (key,value,opts={}) =>
+	prepareValue: (key,value,opts={}) ->
 		# Options
 		opts.idindexed ?= true
 		opts.instantiate ?= true
@@ -86,11 +87,11 @@ class BackboneNestyModel extends Model
 		return value
 
 	# To JSON
-	toJSON: =>
+	toJSON: ->
 		# Prepare
 		model = @
 		types = ['models','collections']
-		json = dereference(super)
+		json = dereference(Model::toJSON.call(model))
 		json.id = @id
 
 		# Instantiate
@@ -122,7 +123,7 @@ class BackboneNestyModel extends Model
 		return json
 
 	# Get
-	get: (key,opts) =>
+	get: (key,opts) ->
 		# Prepare
 		value = getSetDeep.getDeep(@attributes, key)
 		preparedValue = @prepareValue(key, value, {parse:opts?.parse})
@@ -141,7 +142,7 @@ class BackboneNestyModel extends Model
 
 	# Set
 	# If our model is strict, then only set attributes that actually exist in our model structure
-	set: (attrs,opts) =>
+	set: (attrs,opts) ->
 		# Handle alternative argument cases
 		if arguments.length is 3 or typeChecker.isString(arguments[0])
 			[key,value,opts] = arguments
@@ -196,6 +197,7 @@ class BackboneNestyModel extends Model
 
 		# Native
 		return @
+})
 
 # Export
 module.exports = {

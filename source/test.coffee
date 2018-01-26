@@ -1,8 +1,8 @@
 # Import
-{expect} = require('chai')
+{equal, deepEqual, errorEqual} = require('assert-helpers')
 joe = require('joe')
 Backbone = require("backbone")
-{BackboneNestyModel} = require('../..')
+{BackboneNestyModel} = require('../')
 
 
 # =====================================
@@ -87,36 +87,26 @@ joe.describe 'backbone-nesty', (describe,it) ->
 		checks = 0
 		myHead = new HeadModel().on 'warn', (err) ->
 			++checks
-			expect(err.message).to.equal("Set of notSafeAttribute ignored on strict model")
+			errorEqual(err, "Set of notSafeAttribute ignored on strict model")
 		myHead.set(myHeadFixture)
-		expect(checks).to.eql(1)
+		equal(checks, 1)
 
 	it 'should instantiate', ->
 		myHead = new HeadModel(myHeadFixture)
 
 	describe 'meta functions', (describe,it) ->
 		it 'should detect id attribute', ->
-			expect(
-				myHead.isIdAttribute('id')
-			).to.eql(true)
-			expect(
-				myHead.isIdAttribute('cid')
-			).to.eql(true)
+			equal(myHead.isIdAttribute('id'), true)
+			equal(myHead.isIdAttribute('cid'), true)
 
 		it 'should detect nested attribute', ->
-			expect(
-				myHead.isNestedAttribute('id')
-			).to.eql(false)
-			expect(
-				myHead.isNestedAttribute('mouth')
-			).to.eql('models')
-			expect(
-				myHead.isNestedAttribute('eyes')
-			).to.eql('collections')
+			equal(myHead.isNestedAttribute('id'), false)
+			equal(myHead.isNestedAttribute('mouth'), 'models')
+			equal(myHead.isNestedAttribute('eyes'), 'collections')
 
 	it 'should have instantiated nested data', ->
 		actual = myHead.toJSON()
-		expect(actual).to.deep.equal(
+		deepEqual(actual, {
 			id: 1
 			safeAttribute: true
 			mouth: open: true
@@ -130,31 +120,31 @@ joe.describe 'backbone-nesty', (describe,it) ->
 				open: true
 			]
 			toes: [1,2,3,4,5,6,7,8,9,10]
-		)
+		})
 
 	describe 'nested models', (describe,it) ->
 		it 'should perform getters on nested models', ->
 			value = myHead.get("mouth.open")
-			expect(value).to.eql(true)
+			equal(value, true)
 
 		it 'should perform setters on nested models', ->
 			myHead.set("mouth.open", false)
 			value = myHead.get("mouth.open")
-			expect(value).to.eql(false)
+			equal(value, false)
 
 	describe 'nested collections', (describe,it) ->
 		it 'should perform getters on nested collections', ->
 			value = myHead.get("eyes.left.open")
-			expect(value).to.eql(true)
+			equal(value, true)
 
 		it 'should perform setters on nested collections', ->
 			myHead.set("eyes.left.open", false)
 			value = myHead.get("eyes.left.open")
-			expect(value).to.eql(false)
+			equal(value, false)
 
 	it 'should indicate the changes in the serialization', ->
 		actual = myHead.toJSON()
-		expect(actual).to.deep.equal(
+		deepEqual(actual, {
 			id: 1
 			safeAttribute: true
 			mouth: open: false
@@ -168,7 +158,7 @@ joe.describe 'backbone-nesty', (describe,it) ->
 				open: true
 			]
 			toes: [1,2,3,4,5,6,7,8,9,10]
-		)
+		})
 
 	it 'should work with ID indexed collections', ->
 		fixture =
@@ -188,7 +178,7 @@ joe.describe 'backbone-nesty', (describe,it) ->
 				open: true
 			]
 		actual = new HeadModel(eyes: fixture).toJSON()
-		expect(actual.eyes).to.deep.equal(expected)
+		deepEqual(actual.eyes, expected)
 
 	it 'should work with ID indexed collections after pre-set', ->
 		fixture =
@@ -208,7 +198,7 @@ joe.describe 'backbone-nesty', (describe,it) ->
 				open: true
 			]
 		actual = new HeadModel(eyes:[]).set(eyes:fixture).toJSON()
-		expect(actual.eyes).to.deep.equal(expected)
+		deepEqual(actual.eyes, expected)
 
 	describe 'embed', (describe,it) ->
 		fixture = [
@@ -224,17 +214,17 @@ joe.describe 'backbone-nesty', (describe,it) ->
 
 		it 'should respect embed true', ->
 			expected = fixture
-			expect(actual.toJSON().eyes).to.deep.equal(expected)
+			deepEqual(actual.toJSON().eyes, expected)
 
 		it 'should respect embed shallow', ->
 			expected = ['left','right']
 			actual.embeds = eyes:'shallow'
-			expect(actual.toJSON().eyes).to.deep.equal(expected)
+			deepEqual(actual.toJSON().eyes, expected)
 
 		it 'should respect embed false', ->
 			expected = undefined
 			actual.embeds = eyes:false
-			expect(actual.toJSON().eyes).to.deep.equal(expected)
+			deepEqual(actual.toJSON().eyes, expected)
 
 	describe 'nested events', (describe,it) ->
 		it 'should still fire after re-set', ->
@@ -244,34 +234,34 @@ joe.describe 'backbone-nesty', (describe,it) ->
 			myHead.get('eyes')
 				.on('add', (model) ->
 					++checks
-					expect(model.toJSON()).to.deep.equal(thirdEye)
+					deepEqual(model.toJSON(), thirdEye)
 				)
 				.add(thirdEye)
 
 			myHead.set("eyes",[])
 			myHead.get('eyes').add(thirdEye)
 
-			expect(checks).to.eql(2)
+			equal(checks, 2)
 
 	describe 'references', (describe,it) ->
 		it 'should dereference defaults correctly', ->
 			a = new DeepModel()
 			a.set('a.b.c', false)
-			expect(a.get('a.b.c')).to.eql(false)
+			equal(a.get('a.b.c'), false)
 
 			b = new DeepModel()
-			expect(b.get('a.b.c')).to.eql(true)
+			equal(b.get('a.b.c'), true)
 
 		it 'should dereference attributes correctly', ->
 			a = new DeepModel()
 			a.set('a', b:c:true)
 
 			data = a.toJSON()
-			expect(data.a.b.c).to.eql(true)
+			equal(data.a.b.c, true)
 
 			data.a.b.c = false
-			expect(data.a.b.c).to.eql(false)
-			expect(a.get('a.b.c')).to.eql(true)
+			equal(data.a.b.c, false)
+			equal(a.get('a.b.c'), true)
 
 	describe 'replace', (describe,it) ->
 		it 'should replace model correctly', ->
@@ -282,18 +272,18 @@ joe.describe 'backbone-nesty', (describe,it) ->
 				++checks
 			a.set('mouth.open', false)
 
-			expect(checks).to.eql(1)
-			expect(a.get('mouth.open')).to.eql(false)
+			equal(checks, 1)
+			equal(a.get('mouth.open'), false)
 
 			a.set('mouth', {open:true})
 
-			expect(checks).to.eql(2)
-			expect(a.get('mouth.open')).to.eql(true)
+			equal(checks, 2)
+			equal(a.get('mouth.open'), true)
 
 			a.set('mouth', new MouthModel({open:false}))
 
-			expect(checks).to.eql(2)
-			expect(a.get('mouth.open')).to.eql(false)
+			equal(checks, 2)
+			equal(a.get('mouth.open'), false)
 
 		it 'should replace model correctly when replaceModel is false', ->
 			checks = 0
@@ -303,15 +293,15 @@ joe.describe 'backbone-nesty', (describe,it) ->
 				++checks
 			a.set('mouth.open', false)
 
-			expect(checks).to.eql(1)
-			expect(a.get('mouth.open')).to.eql(false)
+			equal(checks, 1)
+			equal(a.get('mouth.open'), false)
 
 			a.set('mouth', {open:true})
 
-			expect(checks).to.eql(2)
-			expect(a.get('mouth.open')).to.eql(true)
+			equal(checks, 2)
+			equal(a.get('mouth.open'), true)
 
 			a.set({'mouth':new MouthModel({open:false})}, {replaceModel:false})
 
-			expect(checks).to.eql(3)
-			expect(a.get('mouth.open')).to.eql(false)
+			equal(checks, 3)
+			equal(a.get('mouth.open'), false)
